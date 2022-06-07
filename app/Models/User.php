@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
-
 use App\Core\Model;
 use App\Services\Router;
 
+
 class User extends Model
 {
-
+    /**
+     *
+     * @param $email
+     * @param $password
+     * @return bool
+     */
     static function register($email, $password)
     {
         $db = self::connection();
@@ -49,6 +54,12 @@ class User extends Model
         return false;
     }
 
+    /**
+     *
+     * @param $password
+     * @param $password_confirm
+     * @return bool
+     */
     public static function checkPasswordConfirm($password, $password_confirm)
     {
         if ($password == $password_confirm) {
@@ -57,6 +68,11 @@ class User extends Model
         return false;
     }
 
+    /**
+     *
+     * @param $email
+     * @return bool
+     */
     public static function checkEmailExist($email)
     {
         $db = self::connection();
@@ -73,6 +89,12 @@ class User extends Model
         return false;
     }
 
+    /**
+     *
+     * @param $email
+     * @param $password
+     * @return false|mixed
+     */
     public static function checkUserData($email, $password)
     {
         $db = self::connection();
@@ -91,11 +113,20 @@ class User extends Model
         return false;
     }
 
+    /**
+     *
+     * @param $userId
+     * @return void
+     */
     public static function auth($userId)
     {
         $_SESSION['user'] = $userId;
     }
 
+    /**
+     *
+     * @return mixed|void
+     */
     public static function checkLogged()
     {
         //Если сессия есть, вернем идентификатор пользователя
@@ -106,6 +137,10 @@ class User extends Model
         //header("Location: /login"); //Route
     }
 
+    /**
+     *
+     * @return bool
+     */
     public static function isGuest()
     {
         if (isset($_SESSION['user'])) {
@@ -114,6 +149,11 @@ class User extends Model
         return true;
     }
 
+    /**
+     *
+     * @param $id
+     * @return mixed|void
+     */
     public static function getUserById($id)
     {
         //Запрос к БД
@@ -134,6 +174,10 @@ class User extends Model
         }
     }
 
+    /**
+     *
+     * @return bool|void
+     */
     public static function checkAdmin()
     {
         // Проверяем авторизован ли пользователь
@@ -149,7 +193,6 @@ class User extends Model
 
         // Иначе завершаем работу с сообщением о закрытом доступе
         die('Access denied');
-        //return false;
     }
 
 }

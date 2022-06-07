@@ -6,6 +6,10 @@ use App\Services\Connection;
 
 abstract class Model
 {
+    /**
+     *
+     * @return \PDO
+     */
     protected static function connection()
     {
         $paramsPath = include ROOT . '/config/db.php';

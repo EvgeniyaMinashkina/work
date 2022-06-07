@@ -6,6 +6,7 @@ class Router
 {
     private $routes;
 
+
     public function __construct()
     {
         $routesPath = ROOT . '/router/routes.php';
@@ -23,6 +24,10 @@ class Router
         }
     }
 
+    /**
+     *
+     * @return void
+     */
     public function run()
     {
         // Получить строку запроса
@@ -61,6 +66,11 @@ class Router
         }
     }
 
+    /**
+     *
+     * @param $uri
+     * @return void
+     */
     public static function redirect($uri)
     {
         header('Location: ' . $uri);

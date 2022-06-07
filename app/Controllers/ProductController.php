@@ -45,6 +45,10 @@ class ProductController
         return true;
     }
 
+    /**
+     *
+     * @return bool
+     */
     public function actionCreate()
     {
         //Проверка доступа
@@ -94,6 +98,10 @@ class ProductController
         return true;
     }
 
+    /**
+     * @param $id
+     * @return bool
+     */
     public function actionUpdate($id)
     {
         //Проверка доступа
@@ -140,6 +148,10 @@ class ProductController
         return true;
     }
 
+    /**
+     * @param $id
+     * @return bool
+     */
     public function actionDelete($id)
     {
         // Проверка доступа
@@ -159,6 +171,9 @@ class ProductController
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public static function actionSearch(){
         if(isset($_POST['query'])){
             $search =  Product::search($_POST['query']);

@@ -30,6 +30,10 @@ class Product extends Model
         }
     }
 
+    /**
+     * @param $options
+     * @return false|int|string
+     */
     public static function create($options)
     {
         // Соединение с БД
@@ -56,6 +60,12 @@ class Product extends Model
         return 0;
     }
 
+    /**
+     *
+     * @param $id
+     * @param $options
+     * @return bool
+     */
      public static function update($id, $options) {
          // Соединение с БД
          $db = self::connection();
@@ -132,6 +142,10 @@ class Product extends Model
 
     }
 
+    /**
+     * @param $name
+     * @return array|false
+     */
     public static function search($name)
     {
         $db = self::connection();
@@ -149,6 +163,10 @@ class Product extends Model
 
     }
 
+    /**
+     * @param $id
+     * @return string
+     */
     public static function getImage($id)
     {
         //Название изображения-заглушки

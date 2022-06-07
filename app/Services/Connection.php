@@ -15,7 +15,6 @@ class Connection
 
     public function __construct()
     {
-        // как поменять значения статических свойств?
         try {
             self::$instance = new \PDO(self::$dsn, self::$username, self::$password);
         } catch (\PDOException $e) {
