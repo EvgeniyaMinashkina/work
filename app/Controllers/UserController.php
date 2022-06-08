@@ -9,6 +9,7 @@ class UserController
 {
 
     /**
+     * Describes the behavior for the register
      * @return bool
      */
     public function actionRegister()
@@ -27,19 +28,19 @@ class UserController
             $errors = false;
 
             if (!User::checkEmail($email)) {
-                $errors[] = 'Неправильный email';
+                $errors[] = 'Wrong email';
             }
 
             if (!User::checkPassword($password)) {
-                $errors[] = 'Пароль не должен быть короче 6-ти символов';
+                $errors[] = 'Password must not be shorter than 6 characters';
             }
 
             if (!User::checkPasswordConfirm($password, $password_confirm)) {
-                $errors[] = 'Пароль и подтверждение пароля должны быть одинаковы';
+                $errors[] = 'Password and password confirmation must be the same';
             }
 
             if (User::checkEmailExist($email)) {
-                $errors[] = 'Такой email уже используется';
+                $errors[] = 'This email is already in use';
             }
 
             if ($errors == false) {
@@ -53,11 +54,12 @@ class UserController
     }
 
     /**
+     * Describes the behavior for the login
      * @return bool
      */
     public function actionLogin()
     {
-        //Проверка залогинен ли если уже да, то перенаправляем на страницу продуктов
+        // Checking if you are already logged in, then redirect to the products page
         if (!User::isGuest()) {
             Router::redirect('/products');
         }
@@ -71,25 +73,25 @@ class UserController
 
             $errors = false;
 
-            // Валидация полей
+            // Field Validation
             if (!User::checkEmail($email)) {
-                $errors[] = 'Неправильный email';
+                $errors[] = 'Wrong email';
             }
 
             if (!User::checkPassword($password)) {
-                $errors[] = 'Пароль не должен быть короче 6-ти символов';
+                $errors[] = 'Password must not be shorter than 6 characters';
             }
 
-            // Проверяем существует ли пользователь
+            // Checking if the user exists
             $userId = User::checkUserData($email, $password);
 
             if ($userId == false) {
-                $errors[] = "Неверный логин или пароль";
+                $errors[] = "Wrong login or password";
             } else {
-                //Если данные правильные, запоминаем пользователя (сессия)
+                // If the data is correct, remember the user (session)
                 User::auth($userId);
 
-                //Перенаправляем на страницу products
+                // Redirecting to the products page
                 Router::redirect('/products');
 
             }
@@ -101,7 +103,7 @@ class UserController
     }
 
     /**
-     * Удаляем данные с пользователя из сессии
+     * Remove data from a user from a session
      */
     public function actionLogout()
     {

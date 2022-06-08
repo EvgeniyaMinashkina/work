@@ -13,26 +13,35 @@ include_once ROOT . '/app/models/User.php';
 
 class ProductController
 {
+    /**
+     * Describes the behavior for the products page
+     * @return bool
+     */
     public function actionIndex()
     {
         $userId = User::checkLogged();
 
-        // Получаем данные о пользователе из БД
+        // Get user's data from the database
         $user = User::getUserById($userId);
 
         $productsList = [];
-        $productsList = Product::getAll(); //замениь если статик и с use
+        $productsList = Product::getAll();
 
         require_once(ROOT . '/views/pages/products/index.php');
 
         return true;
     }
 
+    /**
+     * Describes the behavior for the single product page
+     * @param $id
+     * @return bool
+     */
     public function actionView($id)
     {
         $userId = User::checkLogged();
 
-        // Получаем данные о пользователе из БД
+        // Get user's data from the database
         $user = User::getUserById($userId);
 
         if ($id) {
@@ -46,101 +55,102 @@ class ProductController
     }
 
     /**
-     *
+     * Product create
      * @return bool
      */
     public function actionCreate()
     {
-        //Проверка доступа
+        // Access check
         User::checkAdmin();
 
-        //Обработка формы
+        //Form processing
         if (isset($_POST['submit'])) {
-            // Если форма отправлена получаем данные из формы
+            // If the form is submitted, get the data from the form
             $options['name'] = $_POST['name'];
             $options['price'] = $_POST['price'];
             $options['quantity'] = $_POST['quantity'];
             $options['manufacturer'] = $_POST['manufacturer'];
             $options['description'] = $_POST['description'];
 
-            // Ошибки в форме
+            // Errors in the form
             $errors = false;
 
-            // Можно валидировать необходимые значения
+            // You can validate the required values ​​here
             if (!isset($options['name']) || empty($options['name'])) {
-                $errors[] = 'Field Name is requared. Пожауйста, заполните поле';
+                $errors[] = 'Field Name is required. Please fill in the field';
             }
             if (!isset($options['manufacturer']) || empty($options['manufacturer'])) {
-                $errors[] = 'Field Brand is requared. Пожауйста, заполните поле';
+                $errors[] = 'Field Brand is required. Please fill in the field';
             }
 
-            if($errors == false) {
-                //Если ошибок нет, добавляем новый товар
+            if ($errors == false) {
+                // If there are no errors, add a new item
                 $id = Product::create($options);
 
-                // Если запись добавлена
-                if($id) {
-                    //Проверяем, загружалось ли через форму изображение
-                    if(is_uploaded_file($_FILES["image"]["tmp_name"])) {
-                        // Если загружалось, переносим его в нужную папку, даем имя
+                // If an entry has been added
+                if ($id) {
+                    // Checking if an image was uploaded via the form
+                    if (is_uploaded_file($_FILES["image"]["tmp_name"])) {
+                        // If loaded, transfer it to the desired folder, give a name
                         move_uploaded_file($_FILES["image"]["tmp_name"], $_SERVER['DOCUMENT_ROOT'] . "/uploads/products/{$id}.jpg");
                     }
                 }
 
-                //Перенаправляем на страницу управления товарами
+                // Redirecting to the product management page
                 Router::redirect('/products');
             }
 
         }
 
-        // Подключаем вид
+        // Connecting the View
         require_once(ROOT . '/views/pages/products/create.php');
         return true;
     }
 
     /**
+     * Product update
      * @param $id
      * @return bool
      */
     public function actionUpdate($id)
     {
-        //Проверка доступа
+        // Access check
         User::checkAdmin();
 
         $product = Product::get($id);
 
-        //Обработка формы
+        // Form processing
         if (isset($_POST['submit'])) {
-            // Если форма отправлена получаем данные из формы
+            // If the form is submitted, get the data from the form
             $options['name'] = $_POST['name'];
             $options['price'] = $_POST['price'];
             $options['quantity'] = $_POST['quantity'];
             $options['manufacturer'] = $_POST['manufacturer'];
             $options['description'] = $_POST['description'];
 
-            // Ошибки в форме
+            // Errors in the form
             $errors = false;
 
-            // Можно валидировать необходимые значения
+            // Errors in the form
             if (!isset($options['name']) || empty($options['name'])) {
-                $errors[] = 'Field Name is requared. Пожауйста, заполните поле';
+                $errors[] = 'Field Name is required. Please fill in the field';
             }
             if (!isset($options['manufacturer']) || empty($options['manufacturer'])) {
-                $errors[] = 'Field Brand is requared. Пожауйста, заполните поле';
+                $errors[] = 'Field Brand is requared. Please fill in the field';
             }
 
             if ($errors == false) {
-                //Если ошибок нет, сохраняем изменения
+                //If there are no errors, save the changes
 
                 if (Product::update($id, $options)) {
-                    //Проверяем, загружалось ли через форму изображение
+                    //Checking if an image was uploaded via the form
                     if (is_uploaded_file($_FILES["image"]["tmp_name"])) {
-                        // Если загружалось, переносим его в нужную папку, даем имя
+                        // If loaded, transfer it to the desired folder, give a name
                         move_uploaded_file($_FILES["image"]["tmp_name"], $_SERVER['DOCUMENT_ROOT'] . "/uploads/products/{$id}.jpg");
                     }
                 }
 
-                //Перенаправляем на страницу управления товарами
+                //Redirecting to the product management page
                 Router::redirect('/products');
             }
         }
@@ -149,53 +159,44 @@ class ProductController
     }
 
     /**
+     * Product delete
      * @param $id
      * @return bool
      */
     public function actionDelete($id)
     {
-        // Проверка доступа
+        // Access check
         User::checkAdmin();
 
-        // Обработка формы
+        // Form processing
         if (isset ($_POST['submit'])) {
-            // Если форма отправлена
-            // Удаляем товар
+            // If the form is submitted
+            // Deleting a product
             Product::delete($id);
 
-            //Перенаправляем пользователя на страницу управления товарами
+            //Redirecting the user to the product management page
             Router::redirect('/products');
         }
-        // Подключаем вид
+        // Connecting the View
         require_once(ROOT . '/views/pages/products/delete.php'); //Возможно для delete не надо
         return true;
     }
 
     /**
+     * Search products
      * @return bool
      */
-    public static function actionSearch(){
-        if(isset($_POST['query'])){
-            $search =  Product::search($_POST['query']);
+    public static function actionSearch()
+    {
+        if (isset($_POST['query'])) {
+            $search = Product::search($_POST['query']);
             $productsList = $search;
+            $userId = $_SESSION['user'];
+            $user[] = User::getUserById($userId);
             require_once(ROOT . '/views/pages/products/search.php');
         }
 
         return true;
-
-//            // Обработка формы
-//            if (isset ($_POST['submit'])) {
-//                // Если форма отправлена
-//                $name = $_POST['search'];
-//
-//                // Ищем товары по имени
-//                $search =  Product::search($name);
-//
-//                require_once(ROOT . '/views/pages/products/index.php');
-//
-//            }
-//
-//            return true;
     }
 
 }

@@ -10,7 +10,8 @@ class Router
     public function __construct()
     {
         $routesPath = ROOT . '/router/routes.php';
-        $this->routes = include($routesPath); // присваиваем свойству routes массив в файле routes.php
+        // Assign an array to the routes property in the routes.php file
+        $this->routes = include($routesPath);
     }
 
     /**
@@ -30,50 +31,63 @@ class Router
      */
     public function run()
     {
-        // Получить строку запроса
+        // Get query string
         $uri = $this->getURI();
 
-        // Проверить наличие такого запроса в routes.php
+        // Check for such a request in routes.php
         foreach ($this->routes as $uriPattern => $path) {
 
-            // Сравниваем $uriPattern и $uri
+            // Compare $uriPattern and $uri
             if (preg_match("~$uriPattern~", $uri)) {
+                if ($uriPattern or $_SERVER['REQUEST_URI'] === '/') {
+                    // We get the internal path from the external according to the rule
+                    $internalRoute = preg_replace("~$uriPattern~", $path, $uri);
 
-                // Получаем внутренний путь из внешнего согласно правилу
-                $internalRoute = preg_replace("~$uriPattern~", $path, $uri);
-                // Определить какой контроллер, экшн и параметры
+                    // Determine controller, action and parameters
 
-                $segments = explode('/', $internalRoute);
+                    $segments = explode('/', $internalRoute);
 
-                $controllerName = ucfirst(array_shift($segments)) . 'Controller';
+                    $controllerName = ucfirst(array_shift($segments)) . 'Controller';
 
-                $actionName = 'action' . ucfirst(array_shift($segments));
+                    $actionName = 'action' . ucfirst(array_shift($segments));
 
-                $parametrs = $segments;
+                    $parametrs = $segments;
 
-                // Подключить файл класса-контроллера
+                    // Include controller class file
 
-                // Создать объект, вызвать метод (action)
-                $controllerPath = "App\Controllers\\" . $controllerName;
-                $controllerObject = new $controllerPath();
+                    // Create object, call method (action)
+                    $controllerPath = "App\Controllers\\" . $controllerName;
+                    $controllerObject = new $controllerPath();
 
                     $result = call_user_func_array([$controllerObject, $actionName], $parametrs);
 
-                if ($result != null) {
-                    break;
+                    if ($result != null) {
+                        break;
+                    }
+                } else {
+                    self::error('404');
                 }
             }
         }
     }
 
     /**
-     *
+     * Redirects to the page by the $uri
      * @param $uri
      * @return void
      */
     public static function redirect($uri)
     {
         header('Location: ' . $uri);
+    }
+
+    /**
+     * Connects the corresponding error page
+     * @param $error
+     * @return void
+     */
+    public static function error($error) {
+        require_once (ROOT . "/views/errors/" . $error . ".php");
     }
 
 }

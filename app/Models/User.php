@@ -9,7 +9,7 @@ use App\Services\Router;
 class User extends Model
 {
     /**
-     *
+     * Adding a new registered user to the database
      * @param $email
      * @param $password
      * @return bool
@@ -17,6 +17,7 @@ class User extends Model
     static function register($email, $password)
     {
         $db = self::connection();
+        $password = password_hash($password, PASSWORD_DEFAULT);
         $sql = 'INSERT INTO users (email, password) '
             . 'VALUES (:email, :password)';
 
@@ -29,7 +30,7 @@ class User extends Model
     }
 
     /**
-     * Проверка email
+     * Email verification
      * @param $email
      * @return bool
      */
@@ -42,7 +43,7 @@ class User extends Model
     }
 
     /**
-     * Проверяет пароль - не меньше чем 6 символов
+     * Checks password - no less than 6 characters
      * @param $password
      * @return bool
      */
@@ -55,7 +56,7 @@ class User extends Model
     }
 
     /**
-     *
+     * Checks if the password matches
      * @param $password
      * @param $password_confirm
      * @return bool
@@ -69,7 +70,7 @@ class User extends Model
     }
 
     /**
-     *
+     * Checking if an email exists in the database
      * @param $email
      * @return bool
      */
@@ -99,16 +100,18 @@ class User extends Model
     {
         $db = self::connection();
 
-        $sql = 'SELECT * FROM users WHERE email = :email AND password = :password';
+        $sql = 'SELECT * FROM users WHERE email = :email';
 
         $result = $db->prepare($sql);
         $result->bindParam(':email', $email, \PDO::PARAM_STR);
-        $result->bindParam(':password', $password, \PDO::PARAM_STR);
         $result->execute();
 
         $user = $result->fetch();
+
         if ($user) {
-            return $user['id'];
+            if(password_verify($password, $user['password'])){
+                return $user['id'];
+            }
         }
         return false;
     }
@@ -124,21 +127,21 @@ class User extends Model
     }
 
     /**
-     *
+     * Checking if the user is logged in
+     * Checking if a session exists
      * @return mixed|void
      */
     public static function checkLogged()
     {
-        //Если сессия есть, вернем идентификатор пользователя
+        //If there is a session, return the user ID
         if (isset($_SESSION['user'])) {
             return $_SESSION['user'];
         }
         Router::redirect('/login');
-        //header("Location: /login"); //Route
     }
 
     /**
-     *
+     * Checking if the user is logged in
      * @return bool
      */
     public static function isGuest()
@@ -150,13 +153,12 @@ class User extends Model
     }
 
     /**
-     *
+     * Getting user information with specified id
      * @param $id
      * @return mixed|void
      */
     public static function getUserById($id)
     {
-        //Запрос к БД
         if ($id) {
 
             $db = self::connection();
@@ -165,7 +167,6 @@ class User extends Model
             $result = $db->prepare($sql);
             $result->bindParam(':id', $id, \PDO::PARAM_INT);
 
-            // Указываем, хотим ли получить в виде массива
             $result->setFetchMode(\PDO::FETCH_ASSOC);
             $result->execute();
 
@@ -180,18 +181,18 @@ class User extends Model
      */
     public static function checkAdmin()
     {
-        // Проверяем авторизован ли пользователь
+        // Checking if the user is logged in
         $userId = self::checkLogged();
 
-        // Получаем информацию о пользоваителе
+        // Getting user information
         $user = self::getUserById($userId);
 
-        // Если стоит флаг что isAdmin, то есть возможность управлять товарами
+        // If there is a flag that isAdmin, then it is possible to manage goods
         if ($user['is_admin'] == '1') {
             return true;
         }
 
-        // Иначе завершаем работу с сообщением о закрытом доступе
+        // Otherwise, we exit with a message about closed access
         die('Access denied');
     }
 

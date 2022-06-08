@@ -13,7 +13,7 @@ class Product extends Model
      */
     public static function get($id)
     {
-        $id = intval($id); //надо же это?
+        $id = intval($id);
 
         //Запрос к БД
         if ($id) {
@@ -31,20 +31,21 @@ class Product extends Model
     }
 
     /**
+     * Saving a new product to the database
      * @param $options
      * @return false|int|string
      */
     public static function create($options)
     {
-        // Соединение с БД
+        // Database connection
         $db = self::connection();
 
         $sql = 'INSERT INTO products '
-                . '(name, price, quantity, manufacturer, description )'
-                . 'VALUES '
-                .'(:name, :price, :quantity, :manufacturer, :description )';
+            . '(name, price, quantity, manufacturer, description )'
+            . 'VALUES '
+            . '(:name, :price, :quantity, :manufacturer, :description )';
 
-        //Получение и возврат результатов
+        // Getting and returning results
         $result = $db->prepare($sql);
         $result->bindParam(':name', $options['name'], \PDO::PARAM_STR);
         $result->bindParam(':price', $options['price'], \PDO::PARAM_STR);
@@ -52,59 +53,60 @@ class Product extends Model
         $result->bindParam(':manufacturer', $options['manufacturer'], \PDO::PARAM_STR);
         $result->bindParam(':description', $options['description'], \PDO::PARAM_STR);
 
-        if($result->execute()) {
-            // Если запрос выполнен успешно, возвращаем id добавленого продукта
-            return  $db->lastInsertId();
+        if ($result->execute()) {
+            // If the request is successful, return the id of the added product
+            return $db->lastInsertId();
         }
-        // Иначе возвращаем 0
+        // Otherwise return 0
         return 0;
     }
 
     /**
-     *
+     * Changing a product with the specified id in the database
      * @param $id
      * @param $options
      * @return bool
      */
-     public static function update($id, $options) {
-         // Соединение с БД
-         $db = self::connection();
+    public static function update($id, $options)
+    {
+        // Database connection
+        $db = self::connection();
 
-         //Текст запроса в БД
-         $sql = 'UPDATE products '
-                . 'SET '
-                . 'name = :name, 
+        // Query text
+        $sql = 'UPDATE products '
+            . 'SET '
+            . 'name = :name, 
                    price = :price,
                    quantity = :quantity,
                    manufacturer = :manufacturer,
                    description = :description '
-                . 'WHERE id = :id';
+            . 'WHERE id = :id';
 
-         // Получение и возврат результатов
-         $result = $db->prepare($sql);
-         $result->bindParam(':id', $id, \PDO::PARAM_INT);
-         $result->bindParam(':name', $options['name'], \PDO::PARAM_STR);
-         $result->bindParam(':price', $options['price'], \PDO::PARAM_STR);
-         $result->bindParam(':quantity', $options['quantity'], \PDO::PARAM_INT);
-         $result->bindParam(':manufacturer', $options['manufacturer'], \PDO::PARAM_STR);
-         $result->bindParam(':description', $options['description'], \PDO::PARAM_STR);
+        // Getting and returning results
+        $result = $db->prepare($sql);
+        $result->bindParam(':id', $id, \PDO::PARAM_INT);
+        $result->bindParam(':name', $options['name'], \PDO::PARAM_STR);
+        $result->bindParam(':price', $options['price'], \PDO::PARAM_STR);
+        $result->bindParam(':quantity', $options['quantity'], \PDO::PARAM_INT);
+        $result->bindParam(':manufacturer', $options['manufacturer'], \PDO::PARAM_STR);
+        $result->bindParam(':description', $options['description'], \PDO::PARAM_STR);
 
-         return $result->execute();
+        return $result->execute();
     }
 
     /**
-     * Удаляет товар с указанным id
+     * Deletes the product with the specified id
      * @param $id
      * @return bool
      */
     public static function delete($id)
     {
-        // Соединение с БД
+        // Database connection
         $db = self::connection();
 
         $sql = 'DELETE FROM products WHERE id = :id';
 
-        //Получение и возврат результатов
+        // Getting and returning results
         $result = $db->prepare($sql);
         $result->bindParam(':id', $id, \PDO::PARAM_INT);
         return $result->execute();
@@ -116,12 +118,10 @@ class Product extends Model
      */
     public static function getAll()
     {
-        $db  = self::connection();
+        $db = self::connection();
 
         $newList = [];
 
-        // или проще SELECT *, но там мы create_at, update_at не выводим
-        //DESC - в обратном порядке, чтоб последний добавленный выводился. так лучше или в обычном порядке
         $result = $db->query('SELECT id, name, description, image, price, quantity, manufacturer '
             . 'FROM products '
             . 'ORDER BY id ASC');
@@ -143,6 +143,7 @@ class Product extends Model
     }
 
     /**
+     * Search for a product in the database by name
      * @param $name
      * @return array|false
      */
@@ -153,33 +154,34 @@ class Product extends Model
 
         $query = "SELECT * FROM `products` WHERE `name` LIKE ?";
 
-        //Получение и возврат результатов
+        //Getting and returning results
         $result = $db->prepare($query);
 //        if ($result->fetchColumn()) {
-             $result->execute(["%$name%"]);
-             return $result->fetchAll();
+        $result->execute(["%$name%"]);
+        return $result->fetchAll(\PDO::FETCH_ASSOC);
 //        }
         return false;
 
     }
 
     /**
+     * Getting an image by id
      * @param $id
      * @return string
      */
     public static function getImage($id)
     {
-        //Название изображения-заглушки
+        //Name of dummy image
         $noImage = 'no-image.jpg';
 
-        // Путь к папке с товарами
+        // Path to product folder
         $path = '/uploads/products/';
 
-        // Путь к изображению товара
+        // Path to product image
         $pathToProductImage = $path . $id . '.jpg';
 
-        if(file_exists($_SERVER['DOCUMENT_ROOT'] . $pathToProductImage)){
-            //Если файл изображения для товара существует, возвращаем его путь
+        if (file_exists($_SERVER['DOCUMENT_ROOT'] . $pathToProductImage)) {
+            // If the image file for the product exists, return its path
             return $pathToProductImage;
         }
 

@@ -6,15 +6,21 @@ use App\Services\Page;
 <?php Page::part('head'); ?>
 
 <body>
-<?php Page::part('navbar'); ?>
-<div class="container">
-    <h2 class="mt-4">Удалить товар <?php echo $id; ?>?</h2>
-    <p>Вы действительно хотите удалить этот товар?</p>
-    <form method="post">
-        <input type="submit" name="submit" value="Delete" />
-    </form>
-</div>
-</body>
-</html>
+<div class="wrapper">
+    <?php Page::part('navbar'); ?>
+
+    <div class="content">
+        <div class="container">
+            <h2 class="mt-4">Delete product #<?php echo $id; ?>?</h2>
+            <p>Are you sure you want to remove this product?</p>
+            <div class="wrap-button">
+                <form method="post" class="left">
+                    <input type="submit" class="btn button-delete" name="submit" value="Delete" />
+                </form>
+                <a class="btn button right" href="/products">Cancel</a>
+            </div>
+        </div>
+    </div>
+<?php Page::part('footer');?>
 
 

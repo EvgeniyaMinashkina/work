@@ -3,13 +3,13 @@ This application allows:
  - to get registered and authenticated,
  - list and manage products,
  - search products.
- - 
+
 By default user is created without admin rights. 
 Edit, addition and deletion is allowed only for admin user which has is_admin flag set. 
 
 Use this admin user for test purposes:
- - Email – admin
- - Password - Qwerty
+ - Email: admin@gmail.com
+ - Password: Qwerty
 
 Run composer install to install bootstrap and jquery.
 
